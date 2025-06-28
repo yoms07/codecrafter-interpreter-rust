@@ -161,7 +161,8 @@ impl<'a> Scanner<'a> {
         }
 
         if self.is_at_end() {
-            self.error(self.line, "Untermintaed string.")
+            self.error(self.line, "Untermintaed string.");
+            return;
         }
 
         // the closing "
