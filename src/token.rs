@@ -3,7 +3,7 @@ use std::fmt::Display;
 use std::fmt::Display as FmtDisplay;
 use strum_macros::Display;
 
-#[derive(Display)]
+#[derive(Display, Clone, Copy)]
 #[strum(serialize_all = "SCREAMING_SNAKE_CASE")]
 pub enum TokenType {
     LeftParen,

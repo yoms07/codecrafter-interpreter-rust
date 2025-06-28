@@ -1,4 +1,4 @@
-use std::{fmt::format, process};
+use std::{collections::HashMap, fmt::format, iter::Map, process};
 
 use crate::token::{Literal, Token, TokenType};
 
@@ -10,11 +10,31 @@ pub struct Scanner<'a> {
     end: usize,
     tokens: Vec<Token<'a>>,
     pub has_error: bool,
+    keywords_map: HashMap<&'static str, TokenType>,
 }
 
 impl<'a> Scanner<'a> {
+    fn build_map(&mut self) {
+        self.keywords_map.insert("and", TokenType::And);
+        self.keywords_map.insert("class", TokenType::Class);
+        self.keywords_map.insert("else", TokenType::Else);
+        self.keywords_map.insert("false", TokenType::False);
+        self.keywords_map.insert("for", TokenType::For);
+        self.keywords_map.insert("fun", TokenType::Fun);
+        self.keywords_map.insert("if", TokenType::If);
+        self.keywords_map.insert("nil", TokenType::Nil);
+        self.keywords_map.insert("or", TokenType::Or);
+        self.keywords_map.insert("print", TokenType::Print);
+        self.keywords_map.insert("return", TokenType::Return);
+        self.keywords_map.insert("super", TokenType::Super);
+        self.keywords_map.insert("this", TokenType::This);
+        self.keywords_map.insert("true", TokenType::True);
+        self.keywords_map.insert("var", TokenType::Var);
+        self.keywords_map.insert("while", TokenType::While);
+    }
+
     pub fn new(file_content: &'a String) -> Self {
-        Self {
+        let mut result = Self {
             file_content: file_content,
             start: 0,
             current: 0,
@@ -22,7 +42,11 @@ impl<'a> Scanner<'a> {
             end: file_content.len(),
             tokens: Vec::new(),
             has_error: false,
-        }
+            keywords_map: HashMap::new(),
+        };
+
+        result.build_map();
+        result
     }
     pub fn scan_tokens(&mut self) -> &Vec<Token> {
         while !self.is_at_end() {
@@ -215,7 +239,14 @@ impl<'a> Scanner<'a> {
             }
         }
 
-        self.add_token(TokenType::Identifier, None);
+        let text = &self.file_content[self.start..self.current];
+        let token_type = self
+            .keywords_map
+            .get(text)
+            .copied()
+            .unwrap_or(TokenType::Identifier);
+
+        self.add_token(token_type, None);
     }
 
     fn is_digit(&self, c: char) -> bool {
