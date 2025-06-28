@@ -179,6 +179,8 @@ impl<'a> Scanner<'a> {
         while let Some(c) = self.peek() {
             if self.is_digit(c) {
                 self.advance();
+            } else {
+                break;
             }
         }
 
@@ -187,7 +189,7 @@ impl<'a> Scanner<'a> {
                 self.advance();
                 while let Some(c) = self.peek() {
                     if self.is_digit(c) {
-                        self.advance(); // <- likely you want to consume the digit
+                        self.advance();
                     } else {
                         break;
                     }
