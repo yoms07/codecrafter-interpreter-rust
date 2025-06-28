@@ -144,6 +144,6 @@ impl<'a> Scanner<'a> {
     }
 
     fn report(line: u64, whre: &str, msg: &str) {
-        eprintln!("[line {}] Error {}: {}", line, whre, msg)
+        eprintln!("[line {}] Error{}: {}", line, whre, msg)
     }
 }
