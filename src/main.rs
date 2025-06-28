@@ -27,16 +27,12 @@ fn main() {
                 String::new()
             });
 
-            // Uncomment this block to pass the first stage
-            if !file_contents.is_empty() {
-                let mut scanner = Scanner::new(&file_contents);
+            let mut scanner = Scanner::new(&file_contents);
 
-                let tokens = scanner.scan_tokens();
+            let tokens = scanner.scan_tokens();
 
-                for t in tokens {
-                    println!("{}", t.to_string())
-                }
-            } else {
+            for t in tokens {
+                println!("{}", t.to_string())
             }
         }
         _ => {
