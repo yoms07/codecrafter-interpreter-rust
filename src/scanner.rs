@@ -1,4 +1,4 @@
-use std::fmt::format;
+use std::{fmt::format, process};
 
 use crate::token::{Literal, Token, TokenType};
 
@@ -9,6 +9,7 @@ pub struct Scanner<'a> {
     line: u64,
     end: usize,
     tokens: Vec<Token<'a>>,
+    pub has_error: bool,
 }
 
 impl<'a> Scanner<'a> {
@@ -20,6 +21,7 @@ impl<'a> Scanner<'a> {
             line: 1,
             end: file_content.len(),
             tokens: Vec::new(),
+            has_error: false,
         }
     }
     pub fn scan_tokens(&mut self) -> &Vec<Token> {
@@ -93,7 +95,7 @@ impl<'a> Scanner<'a> {
                 }
                 _ => {
                     // later: handle whitespace, identifiers, etc.
-                    Scanner::error(self.line, &format!("Unexpected character: {}", c));
+                    self.error(self.line, &format!("Unexpected character: {}", c));
                 }
             }
         }
@@ -136,11 +138,12 @@ impl<'a> Scanner<'a> {
             .push(Token::new(token_type, text, literal, self.line));
     }
 
-    pub fn error(line: u64, msg: &str) {
+    pub fn error(&mut self, line: u64, msg: &str) {
         Scanner::report(line, "", msg);
+        self.has_error = true;
     }
 
     fn report(line: u64, whre: &str, msg: &str) {
-        println!("[line {}] Error {}: {}", line, whre, msg)
+        eprintln!("[line {}] Error {}: {}", line, whre, msg)
     }
 }

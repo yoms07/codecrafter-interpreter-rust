@@ -1,6 +1,7 @@
 use std::env;
 use std::fs;
 use std::io::{self, Write};
+use std::process;
 
 use crate::scanner::Scanner;
 
@@ -33,6 +34,10 @@ fn main() {
 
             for t in tokens {
                 println!("{}", t.to_string())
+            }
+
+            if scanner.has_error {
+                process::exit(65);
             }
         }
         _ => {
