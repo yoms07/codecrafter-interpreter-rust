@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use crate::token::{Literal, Token, TokenType};
 
 pub struct Scanner<'a> {
@@ -91,7 +93,7 @@ impl<'a> Scanner<'a> {
                 }
                 _ => {
                     // later: handle whitespace, identifiers, etc.
-                    Scanner::error(self.line, "Unexpected character.");
+                    Scanner::error(self.line, &format!("Unexpected character: {}", c));
                 }
             }
         }
