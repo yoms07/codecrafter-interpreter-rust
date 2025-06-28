@@ -93,9 +93,17 @@ impl<'a> Scanner<'a> {
                         self.add_token(Slash, None);
                     }
                 }
+                '"' => {
+                    self.string();
+                }
+                ' ' | '\r' | '\t' => {}
+                '\n' => self.line += 1,
                 _ => {
-                    // later: handle whitespace, identifiers, etc.
-                    self.error(self.line, &format!("Unexpected character: {}", c));
+                    if self.is_digit(c) {
+                        self.number();
+                    } else {
+                        self.error(self.line, &format!("Unexpected character: {}", c));
+                    }
                 }
             }
         }
@@ -103,6 +111,12 @@ impl<'a> Scanner<'a> {
 
     fn peek(&self) -> Option<char> {
         self.file_content[self.current..].chars().next()
+    }
+
+    fn peek_next(&self) -> Option<char> {
+        let mut chars = self.file_content[self.current..].chars();
+        chars.next()?;
+        chars.next()
     }
 
     fn match_next(&mut self, expected: char) -> bool {
@@ -136,6 +150,56 @@ impl<'a> Scanner<'a> {
         let text = &self.file_content[self.start..self.current];
         self.tokens
             .push(Token::new(token_type, text, literal, self.line));
+    }
+
+    fn string(&mut self) {
+        while let Some(c) = self.peek() {
+            if c == '\n' {
+                self.line += 1;
+            }
+            self.advance();
+        }
+
+        if self.is_at_end() {
+            self.error(self.line, "Untermintaed string.")
+        }
+
+        // the closing "
+        self.advance();
+
+        let value = &self.file_content[self.start + 1..self.current - 1];
+        self.add_token(TokenType::String, Some(Literal::String(value.to_string())));
+    }
+
+    fn number(&mut self) {
+        while let Some(c) = self.peek() {
+            if self.is_digit(c) {
+                self.advance();
+            }
+        }
+
+        match (self.peek(), self.peek_next()) {
+            (Some('.'), Some(next)) if self.is_digit(next) => {
+                self.advance();
+                while let Some(c) = self.peek() {
+                    if self.is_digit(c) {
+                        self.advance(); // <- likely you want to consume the digit
+                    } else {
+                        break;
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        let value = &self.file_content[self.start..self.current];
+
+        let num_value: f64 = value.parse().unwrap();
+        self.add_token(TokenType::Number, Some(Literal::Number(num_value)));
+    }
+
+    fn is_digit(&self, c: char) -> bool {
+        c >= '0' && c <= '9'
     }
 
     pub fn error(&mut self, line: u64, msg: &str) {
