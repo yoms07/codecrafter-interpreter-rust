@@ -154,6 +154,9 @@ impl<'a> Scanner<'a> {
 
     fn string(&mut self) {
         while let Some(c) = self.peek() {
+            if c == '"' {
+                break;
+            }
             if c == '\n' {
                 self.line += 1;
             }
