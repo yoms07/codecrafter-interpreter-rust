@@ -2,6 +2,11 @@ use std::env;
 use std::fs;
 use std::io::{self, Write};
 
+use crate::scanner::Scanner;
+
+mod scanner;
+mod token;
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
@@ -24,9 +29,14 @@ fn main() {
 
             // Uncomment this block to pass the first stage
             if !file_contents.is_empty() {
-                panic!("Scanner not implemented");
+                let mut scanner = Scanner::new(&file_contents);
+
+                let tokens = scanner.scan_tokens();
+
+                for t in tokens {
+                    println!("{}", t.to_string())
+                }
             } else {
-                println!("EOF  null"); // Placeholder, replace this line when implementing the scanner
             }
         }
         _ => {
