@@ -101,6 +101,8 @@ impl<'a> Scanner<'a> {
                 _ => {
                     if self.is_digit(c) {
                         self.number();
+                    } else if self.is_alpha(c) {
+                        self.identifier();
                     } else {
                         self.error(self.line, &format!("Unexpected character: {}", c));
                     }
@@ -204,8 +206,28 @@ impl<'a> Scanner<'a> {
         self.add_token(TokenType::Number, Some(Literal::Number(num_value)));
     }
 
+    fn identifier(&mut self) {
+        while let Some(c) = self.peek() {
+            if self.is_alphanumeric(c) {
+                self.advance();
+            } else {
+                break;
+            }
+        }
+
+        self.add_token(TokenType::Identifier, None);
+    }
+
     fn is_digit(&self, c: char) -> bool {
         c >= '0' && c <= '9'
+    }
+
+    fn is_alpha(&self, c: char) -> bool {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c == '_');
+    }
+
+    fn is_alphanumeric(&self, c: char) -> bool {
+        self.is_alpha(c) || self.is_digit(c)
     }
 
     pub fn error(&mut self, line: u64, msg: &str) {
